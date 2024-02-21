@@ -11,7 +11,7 @@ resource "aws_launch_configuration" "webserver" {
                 sudo yum install -y ansible
                 sudo systemctl start httpd
                 sudo systemctl enable httpd
-                sudo ansible-pull -U https://github.com/Niks2992/test/blob/main/playbook.yaml             
+                sudo ansible-pull -U https://github.com/Niks2992/assignments/blob/main/playbook.yaml             
                 sudo systemctl restart httpd
                 EOF
 
