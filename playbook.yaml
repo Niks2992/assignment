@@ -24,6 +24,6 @@
 
     - name: Deploy web application files
       copy:
-        src: /var/www/index.html
+        src: https://github.com/Niks2992/assignments/blob/main/index.html
         dest: /var/www/html/
       become: yes
