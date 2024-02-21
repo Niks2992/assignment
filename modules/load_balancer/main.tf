@@ -1,6 +1,6 @@
 resource "aws_lb" "lb" {
   name               = var.load_balancer_name
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
   subnets            = var.subnet_ids
 
@@ -39,4 +39,17 @@ resource "aws_lb_listener" "lblistener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lbtargetgroup.arn
   }
+}
+
+resource "aws_lb_listener_certificate" "cert" {
+  listener_arn    = aws_lb_listener.lblistener.arn
+  certificate_arn = var.acm_certificate_arn
+}
+
+resource "aws_route53_record" "load_balancer_dns" {
+  zone_id = var.route53_zone_id
+  name    = "test.example.com"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_lb.lb.dns_name]
 }

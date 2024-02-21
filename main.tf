@@ -14,7 +14,7 @@ module "autoscaling" {
   launch_configuration_name = var.launch_configuration_name
   image_id                  = var.image_id
   instance_type             = var.instance_type
-  security_group_id         = var.security_group_id
+  security_group_id         = module.security_group.security_group_id
   key_name                  = var.key_name
   root_volume_size          = var.root_volume_size
   root_volume_type          = var.root_volume_type
@@ -22,40 +22,41 @@ module "autoscaling" {
   min_size                  = var.min_size
   max_size                  = var.max_size
   desired_capacity          = var.desired_capacity
-  subnet_ids                = [module.vpc.private_subnet_id]
+  subnet_ids                = module.vpc.private_subnet_id
   alarm_name                = var.alarm_name
-  notification_arn          = var.notification_arn
+  notification_arn          = module.sns_notification.topic_arn
+}
+
+module "route53" {
+  source             = "./modules/route53"
+  vpc_id             = module.vpc.vpc_id
+  region             = "eu-central-1"
+  zone_name          = var.zone_name
 }
 
 module "load_balancer" {
-  source = "./modules/load_balancer"
-
+  source             = "./modules/load_balancer"
   load_balancer_name = var.load_balancer_name
-  subnet_ids         = [module.vpc.public_subnet_id]
+  subnet_ids         = module.vpc.public_subnet_id
   target_group_name  = var.target_group_name
   target_group_port  = var.target_group_port
   vpc_id             = module.vpc.vpc_id
+  acm_certificate_arn = var.acm_certificate_arn
+  route53_zone_id    = module.route53.private_zone_id
 }
 
-# variable "vpc_cidr_block" {}
-# variable "vpc_name" {}
-# variable "private_subnet_cidr" {}
-# variable "public_subnet_cidr" {}
-# variable "availability_zone" {}
-# variable "launch_configuration_name" {}
-# variable "image_id" {}
-# variable "instance_type" {}
-# variable "security_group_id" {}
-# variable "key_name" {}
-# variable "root_volume_size" {}
-# variable "root_volume_type" {}
-# variable "autoscaling_group_name" {}
-# variable "min_size" {}
-# variable "max_size" {}
-# variable "desired_capacity" {}
-# variable "alarm_name" {}
-# variable "notification_arn" {}
-# variable "load_balancer_name" {}
-# variable "target_group_name" {}
-# variable "target_group_port" {}
+module "sns_notification" {
+  source = "./modules/sns"
 
+  notification_topic_name = var.notification_topic_name
+}
+
+module "security_group" {
+  source = "./modules/security_group"
+
+  vpc_id = module.vpc.vpc_id
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = module.vpc.vpc_id
+}
