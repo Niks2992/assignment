@@ -16,7 +16,6 @@ This Terraform module deploys a web application on AWS following the specified d
 
 ## Additional Features
 
-- *Self-signed Certificate*: A self-signed certificate for test.example.com is created and used with the load balancer. This DNS resolves internally within the VPC network with Route 53 private hosted zone.
 - *Data Encryption*: All data is encrypted at rest.
 - *Security Best Practices*: Web servers are designed to be managed without logging in with the root key.
 - *CloudWatch Alarms*: CloudWatch alarms indicate when the application is experiencing any issues.
